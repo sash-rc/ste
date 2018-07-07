@@ -1,0 +1,45 @@
+<html>
+
+<h1 style="color:orange">Simple Templating Engine demo</h1>
+
+<h3>Simple variable</h3>
+generated @ <?gentime?>
+
+<h3>Callback for tag "callback"</h3>
+<?callback params can be used!?>
+
+<h3>IF {ELSE} block</h3>
+
+Condition (random) is 
+<strong>
+  <?if if_condition ?>
+    <span style="color:darkgreen">True / Assigned</span>
+  <?else?>
+    <span style="color:red">False / Unassigned</span>
+  <?endif?>
+</strong>
+
+<h3>Dataset row</h3>
+Id: <? ds:head int_field ?> -- Title: <? ds:head str_field ?> -- Boolean: <? ds:head bool_field ?>
+
+<h3>FOR Dataset iteration</h3>
+
+<table style="background:lightgrey">
+  <thead>
+    <th>ID</th>
+    <th>Name</th>
+    <th>Float value</th>
+  </thead>
+  
+  <?for ds:data ?>
+    <tr>
+      <td><? ds:data id ?></td>
+      <td><? ds:data name ?></td>
+      <td style="text-align:right; color:red"><? ds:data float_field ?></td>
+    </tr>
+  <?endfor?>  
+</table>
+
+
+
+</html>

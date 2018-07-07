@@ -1,0 +1,189 @@
+object frmMain: TfrmMain
+  Left = 458
+  Height = 752
+  Top = 132
+  Width = 1050
+  Caption = 'Simple Templating Engine examples'
+  ClientHeight = 752
+  ClientWidth = 1050
+  DesignTimePPI = 92
+  OnCreate = FormCreate
+  LCLVersion = '1.8.4.0'
+  object HtmlPanel: TIpHtmlPanel
+    Left = 0
+    Height = 568
+    Top = 184
+    Width = 1050
+    Align = alClient
+    FixedTypeface = 'Courier New'
+    DefaultTypeFace = 'default'
+    DefaultFontSize = 12
+    FlagErrors = False
+    PrintSettings.MarginLeft = 0.5
+    PrintSettings.MarginTop = 0.5
+    PrintSettings.MarginRight = 0.5
+    PrintSettings.MarginBottom = 0.5
+    PrintSettings.Preview.Left = 480
+    PrintSettings.Preview.Top = 270
+    PrintSettings.Preview.Width = 1440
+    PrintSettings.Preview.Height = 810
+    TabOrder = 0
+  end
+  object Panel1: TPanel
+    Left = 0
+    Height = 184
+    Top = 0
+    Width = 1050
+    Align = alTop
+    ClientHeight = 184
+    ClientWidth = 1050
+    TabOrder = 1
+    object btnGenerate: TBitBtn
+      Left = 504
+      Height = 33
+      Top = 24
+      Width = 136
+      Caption = 'Generate'
+      Glyph.Data = {
+        36040000424D3604000000000000360000002800000010000000100000000100
+        2000000000000004000064000000640000000000000000000000000000000000
+        00000000000000000000894B1F29864A2089884B21D98A4D21F6884A20F8884C
+        20D7874B1F8C864A222600000000000000000000000000000000000000000000
+        000092492407874B2199874B21FC90542AF99C5F31FFA16436FF9E6131FF9A5C
+        2DFF905326F9884B21FC894C2097804D1A0A0000000000000000000000008055
+        2B06894A21C48D5327F7A4683BFFA86C3DFFA66838FFA66838FFA46635FFA567
+        36FFA76A3BFFA66B3EFF91562BF7894B21C68E551C090000000000000000884B
+        209691552BF6AA7043FFA6693AFFA76A3AFFAB7043FFAB7143FFA96D3EFFAA6F
+        42FFA96D3EFFA86C3DFFAF784CF8A36B41E1A56B405800000000864A2226894B
+        23F7AB7347FFA6693AFFAA6F42FFAC7347FF985E31FD8E5125F58B4D22F4965A
+        2FFAAB7248F5B07B50D6AA6D40B2B17A5099B47C5063FF000001894B21959B61
+        37FBAC7346FFA86C3EFFAF764CFF8E5226F6874B21D3874A2360844C23519359
+        2E95A3683CC4AC714797AC71476CA86D3E46A25D3621C4936700894A21E2A873
+        4AFFA96E40FFB17B51FF9B6035FC884C21C780404004FF00000080800000AA77
+        5500BD835723B279453FA266331EF0E3D600DAB49400E1CAAC00874B21F9AF7D
+        55FFAB7043FFB58159FF8B4E24F4874A2059844A210000000000000000000000
+        0000D5B59500EDD5C200D9B39200C9A17900DB926D00FF000000884B20F6B382
+        5DFFAF764AFFBA8963FF8C4F25F4884A21560000000000000000874A20FF874A
+        20FF874A20FF874A20FF874A20FF874A20FF874A20FF874A20FF894C22D9B282
+        5DFFB68155FFBF906AFFA66F47FC894C22D08E551C0900000000864B1F63874A
+        20FFA8744DFFBE916CFFBD8F6AFFBC8E68FFB88966FF874A20FF87491F82A26E
+        48F9C4966FFFBA8558FFC89D79FF996038F7894C21DE874A2060884B1F4B874A
+        20D9884B22FFC89E7CFFC99F7CFFBF8E65FFC39876FF874A20FF8A4A20188A4D
+        24F5C79E7DFFC4936AFFC5956DFFCEA686FFB07F59FD92572EF38D5127F59D67
+        3FF7C09370FFCFA786FFC4936BFFCDA481FFC9A181FF874A20FF000000008A4C
+        237C98623AF6D3AE8FFFCB9E76FFC8996FFFD3AE8CFFD6B393FFD6B293FFD5B1
+        91FFCFA57FFFC99B72FFD3AE8CFFD2AE8FFFCFAA8CFF874A20FF00000000FF00
+        00018A4D23AF9A643DF8D2AF90FFD9B593FFD2A780FFD1A67EFFD2A780FFD1A6
+        7EFFD6B08CFFD8B698FFAB7C59F9894D23FFC09777FF874A20FF000000000000
+        0000AA550003884B238B8B4F26FBB0815DF9CBA787FFD6B598FFD8B79BFFD0AC
+        8EFFB98E6CFD925831FA894E24BA884A20678A4E25FF874A20FF000000000000
+        000000000000AA5500008A491D23884C20878A4E24DA884C21F5884A21FB8A4D
+        23E88A4C24A485481E438A4C2100AA550000874B2166874A20FF
+      }
+      OnClick = btnGenerateClick
+      TabOrder = 0
+    end
+    object GroupBox1: TGroupBox
+      Left = 24
+      Height = 160
+      Top = 8
+      Width = 352
+      Caption = 'Dataset'
+      ClientHeight = 136
+      ClientWidth = 350
+      TabOrder = 1
+      object Label1: TLabel
+        Left = 16
+        Height = 23
+        Top = 8
+        Width = 20
+        Caption = 'int'
+        ParentColor = False
+      end
+      object DBEdit1: TDBEdit
+        Left = 96
+        Height = 29
+        Top = 2
+        Width = 97
+        DataField = 'int_field'
+        DataSource = dsrcHead
+        CharCase = ecNormal
+        MaxLength = 0
+        TabOrder = 0
+      end
+      object Label2: TLabel
+        Left = 16
+        Height = 23
+        Top = 54
+        Width = 45
+        Caption = 'string'
+        ParentColor = False
+      end
+      object DBEdit2: TDBEdit
+        Left = 96
+        Height = 29
+        Top = 48
+        Width = 97
+        DataField = 'str_field'
+        DataSource = dsrcHead
+        CharCase = ecNormal
+        MaxLength = 0
+        TabOrder = 1
+      end
+      object DBCheckBox1: TDBCheckBox
+        Left = 96
+        Height = 22
+        Top = 96
+        Width = 85
+        AllowGrayed = True
+        Caption = 'bool'
+        DataField = 'bool_field'
+        DataSource = dsrcHead
+        TabOrder = 2
+        ValueChecked = 'True'
+        ValueUnchecked = 'False'
+      end
+    end
+  end
+  object dsHead: TBufDataset
+    FieldDefs = <    
+      item
+        Name = 'int_field'
+        DataType = ftInteger
+      end    
+      item
+        Name = 'str_field'
+        DataType = ftString
+        Size = 40
+      end    
+      item
+        Name = 'bool_field'
+        DataType = ftBoolean
+      end>
+    left = 760
+    top = 128
+  end
+  object dsData: TBufDataset
+    FieldDefs = <    
+      item
+        Name = 'id'
+        DataType = ftInteger
+      end    
+      item
+        Name = 'name'
+        DataType = ftString
+        Size = 50
+      end    
+      item
+        Name = 'float_field'
+        DataType = ftFloat
+      end>
+    left = 758
+    top = 213
+  end
+  object dsrcHead: TDataSource
+    DataSet = dsHead
+    left = 758
+    top = 58
+  end
+end
