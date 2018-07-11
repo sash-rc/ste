@@ -81,22 +81,28 @@ type
       procedure Process(ASource, AResult : TStream);
       function Process(ASource : TStream) : string; // Result as string
 
+      // todo: set title
+
+      //<office:meta>
+      //   <dc:title>Title</dc:title>
+      //</office:meta>
+
       constructor Create(const ATagOpenToken : string = '[[#'; const ATagCloseToken : string = ']]');
 
   end;
 
 
   // preprocess & prepare oneliner
-  function PrepareXMLTemplate(ASource : TStream) : TSTEParsedTemplateData;
+  function PrepareXMLTemplate(ASource : TStream; AParser : TSTEParser = nil) : TSTEParsedTemplateData;
 
 
 implementation
 
 uses strutils, math, steCommon{, LazLogger};
 
-{$define DEBUG_STE_XMLPARSER}
+//{$define DEBUG_STE_XMLPARSER}
 
-function PrepareXMLTemplate(ASource : TStream) : TSTEParsedTemplateData;
+function PrepareXMLTemplate(ASource : TStream; AParser : TSTEParser) : TSTEParsedTemplateData;
 var
   parser : TSTEParser;
   {$ifdef DEBUG_STE_XMLPARSER}
@@ -107,8 +113,10 @@ begin
 
   with TSTEXMLPreProcessor.Create do
     try
-
-      parser := TSTEParser.Create;
+      if AParser <> nil then
+        parser := TSTEParser.Create
+      else
+        parser := AParser; // use external parser
       try
         parser.TagOpenToken := ParserTagOpenToken;
         parser.TagCloseToken := ParserTagCloseToken;
@@ -128,7 +136,8 @@ begin
 
          {$endif}
       finally
-        parser.Free;
+        if AParser <> nil then
+          parser.Free;
       end;
 
     finally
