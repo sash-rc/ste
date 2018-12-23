@@ -40,7 +40,7 @@ type
     Tokens : TList;
 
     function TokenKindName(tokenIndex : integer) : string;
-    constructor Create;
+    constructor Create; virtual;
     destructor Destroy; override;
   end;
 

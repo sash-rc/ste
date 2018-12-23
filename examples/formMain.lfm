@@ -6,7 +6,7 @@ object frmMain: TfrmMain
   Caption = 'Simple Templating Engine examples'
   ClientHeight = 752
   ClientWidth = 1050
-  DesignTimePPI = 92
+  DesignTimePPI = 91
   OnCreate = FormCreate
   LCLVersion = '1.8.4.0'
   object HtmlPanel: TIpHtmlPanel
@@ -89,20 +89,20 @@ object frmMain: TfrmMain
       Top = 8
       Width = 352
       Caption = 'Dataset'
-      ClientHeight = 136
+      ClientHeight = 137
       ClientWidth = 350
       TabOrder = 1
       object Label1: TLabel
         Left = 16
-        Height = 23
+        Height = 22
         Top = 8
-        Width = 20
+        Width = 18
         Caption = 'int'
         ParentColor = False
       end
       object DBEdit1: TDBEdit
         Left = 96
-        Height = 29
+        Height = 28
         Top = 2
         Width = 97
         DataField = 'int_field'
@@ -113,15 +113,15 @@ object frmMain: TfrmMain
       end
       object Label2: TLabel
         Left = 16
-        Height = 23
+        Height = 22
         Top = 54
-        Width = 45
+        Width = 40
         Caption = 'string'
         ParentColor = False
       end
       object DBEdit2: TDBEdit
         Left = 96
-        Height = 29
+        Height = 28
         Top = 48
         Width = 97
         DataField = 'str_field'

@@ -5,7 +5,7 @@ unit formMain;
 interface
 
 uses
-  Classes, SysUtils, BufDataset, db, FileUtil, IpHtml, Forms, Controls, Graphics, Dialogs, StdCtrls, LCLIntf, ExtCtrls, Buttons, DbCtrls;
+  Classes, SysUtils, BufDataset, db, FileUtil, IpHtml, Ipfilebroker, Forms, Controls, Graphics, Dialogs, StdCtrls, LCLIntf, ExtCtrls, Buttons, DbCtrls;
 
 type
   TfrmMain = class(TForm)
@@ -42,6 +42,8 @@ uses math, steProcessor;
 
 {$R *.lfm}
 
+const
+  TemplateFile = './templates/template.thtml';
 
 procedure TfrmMain.btnGenerateClick(Sender : TObject);
 var
@@ -66,12 +68,15 @@ begin
       AProcessor.AddDataset('data', dsData);
 
       AProcessor.SetOutput(OutStream);
-      AProcessor.Generate(ReadFileToString('./template.thtml'));
+      if not FileExists(TemplateFile) then
+        raise Exception.CreateFmt('Template file %s does not exist', [TemplateFile]);
+      AProcessor.Generate(ReadFileToString(TemplateFile));
 
     finally
       AProcessor.Free;
     end;
 
+    OutStream.SaveToFile('result.html');
     DisplayHTML(OutStream);
   finally
     OutStream.Free;
