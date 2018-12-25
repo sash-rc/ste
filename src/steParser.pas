@@ -44,6 +44,8 @@ type
     destructor Destroy; override;
   end;
 
+type
+  TSTETemplateClass = class of TSTEParsedTemplateData;
 
 type
   TSTEParser = class
@@ -65,6 +67,7 @@ type
     function GetNextToken(template : TSTEParsedTemplateData) : boolean;
     procedure ParseToken(token : PSTEParserToken; const tokenText : string);
     procedure BuildSyntaxTree(template : TSTEParsedTemplateData);
+
   public
     //TagParamSeparator : string;
     TrimTagLines : boolean; //trim empty line endings after tags - postponed
@@ -75,7 +78,8 @@ type
 
     class procedure SetDefaultTokenEnclosing(const AOpen, AClose : string);
 
-    function Prepare(const ASource : string) : TSTEParsedTemplateData;
+    function Prepare(const ASource : string) : TSTEParsedTemplateData; // prepare external instance
+    procedure PrepareTemplate(const ASource : string; var ATemplate : TSTEParsedTemplateData);
 
     constructor Create;
     destructor Destroy; override;
@@ -348,22 +352,28 @@ begin
   DefaultTagCloseToken := AClose;
 end;
 
-function TSTEParser.Prepare(const ASource : string) : TSTEParsedTemplateData;
+procedure TSTEParser.PrepareTemplate(const ASource : string; var ATemplate : TSTEParsedTemplateData);
 var
   moreTokens : boolean;
 begin
+  ATemplate.Source := ASource;
+  FSourceLen := Length(ASource);
+  FCurrentPos := 1;
+  // tokenize
+  repeat
+    moreTokens := GetNextToken(ATemplate);
+  until moreTokens = false;
+  BuildSyntaxTree(ATemplate);
+end;
+
+
+function TSTEParser.Prepare(const ASource : string) : TSTEParsedTemplateData;
+begin
   try
     Result := TSTEParsedTemplateData.Create;
-    Result.Source := ASource;
-    FSourceLen := Length(ASource);
-    FCurrentPos := 1;
-    // tokenize
-    repeat
-      moreTokens := GetNextToken(Result);
-    until moreTokens = false;
-    BuildSyntaxTree(Result);
+    PrepareTemplate(ASource, Result);
   except
-    FreeAndNil(Result);
+    Result.Free;
     raise;
   end;
 end;

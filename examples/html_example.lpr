@@ -3,12 +3,13 @@ program html_example;
 {$mode objfpc}{$H+}
 
 uses
-  {$IFDEF UNIX}{$IFDEF UseCThreads}
-  cthreads,
-  {$ENDIF}{$ENDIF}
+  {$IFDEF UNIX}
+    { $IFDEF UseCThreads}
+      cthreads,
+    { $ENDIF}
+  {$ENDIF}
   Interfaces, // this includes the LCL widgetset
-  Forms, formMain, steCache
-  { you can add units after this };
+  Forms, formMain, steCache;
 
 {$R *.res}
 

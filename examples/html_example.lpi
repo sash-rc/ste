@@ -5,6 +5,7 @@
     <General>
       <SessionStorage Value="InProjectDir"/>
       <MainUnit Value="0"/>
+      <AutoCreateForms Value="False"/>
       <Title Value="html_example"/>
       <ResourceType Value="res"/>
       <UseXPManifest Value="True"/>

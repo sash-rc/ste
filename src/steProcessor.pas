@@ -11,7 +11,7 @@ unit steProcessor;
 interface
 
 uses
-  Classes, SysUtils, steParser, contnrs, db;
+  Classes, SysUtils, steParser, db;
 
 type
   TSTEExpandTagProc = function (const tagParam: string): string of object;

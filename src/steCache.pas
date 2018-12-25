@@ -5,58 +5,59 @@ unit steCache;
 interface
 
 uses
-  Classes, SysUtils,
-  {$ifndef STE_CACHE_NO_THREADS}
-  syncobjs,
-  {$endif}
-  steParser;
-
-type
-  TSTECachePolicy = (stecpPreload, stecpLazy);
-
-type
-  TSTESharedTemplate = class(TSTEParsedTemplateData)
-    protected
-      FReadersCount : integer;
-    public
-      procedure Aquire;
-      procedure Release;
-      constructor Create; override;
-  end;
+  Classes, SysUtils, syncobjs, steParser;
 
 
-type
-  TSTECachedItem = record
-    Name : string;
-    Template : TSTESharedTemplate;
-    LastChangeDate : TDateTime;
-    //{$ifndef STE_CACHE_NO_THREADS}
-    //ReadersCount : integer;
-    //{$endif}
-  end;
-
+// faster cache without locks, everyting prealoaded at startup
+// intended to be used at production
 
 type
   TSTECache = class
     protected
-      {$ifndef STE_CACHE_NO_THREADS}
-      FLock : TMultiReadExclusiveWriteSynchronizer;
-      {$endif}
-      FCache : array of TSTECachedItem;
+      FCache : TStringList;
       FParser : TSTEParser;
+      FTemplateClass : TSTETemplateClass;
 
-      function InternalGet(const AnItemName : string) : TSTESharedTemplate;
-      function Prepare(const AFileName : string) : TSTEParsedTemplateData;
+      FBaseDirectory : string;
+      FFileNameMask : string;
+
+      procedure Preload;
+      function Prepare(const AFullFileName : string; DoCheckFileExists : boolean = true) : TSTEParsedTemplateData; virtual;
+
+      procedure AfterConstruction; override;
 
     public
-      BaseDirectory : string;
-      FileNameMask : string;
-      Refreshable : boolean;
 
-      procedure Clear;
-      function Get(const AnItemName : string) : TSTEParsedTemplateData;
+      property BaseDirectory : string read FBaseDirectory;
 
-      constructor Create;
+      constructor Create(const ABaseDir, AFileNameMask: string); virtual;
+      destructor Destroy; override;
+
+      function Get(const AFileName : string) : TSTEParsedTemplateData; virtual;
+      procedure Release({%H-}ATemplate : TSTEParsedTemplateData); virtual;
+
+  end;
+
+
+// Lazy loaded and refreshable (by file change date)
+// intended to be used for development / debug
+
+type
+  TSTERefreshableCache = class(TSTECache)
+    protected
+      FLock : TCriticalSection;
+      FGarbageItems : TFPList;
+
+      procedure ClearGarbage;
+      function Prepare(const AFullFileName : string; DoCheckFileExists : boolean = true) : TSTEParsedTemplateData; override;
+
+    public
+      LoadOnDemand : boolean;
+
+      function Get(const AFileName : string) : TSTEParsedTemplateData; override;
+      procedure Release(ATemplate : TSTEParsedTemplateData); override;
+
+      constructor Create(const ABaseDir, AFileNameMask: string); override;
       destructor Destroy; override;
   end;
 
@@ -65,114 +66,199 @@ implementation
 uses
   LazFileUtils, FileUtil;
 
-procedure TSTESharedTemplate.Aquire;
+type
+  TSTESharedTemplate = class(TSTEParsedTemplateData)
+    protected
+      FReadersCount : integer;
+      FLastChangeDate : TDateTime;
+      FIsGarbage : boolean;
+    public
+      constructor Create; override;
+  end;
+
+procedure TSTECache.Preload;
+var
+  files : TStringList;
+  i : integer;
+  relPath : string;
 begin
-  inc(FReadersCount);
+  files := FindAllFiles(FBaseDirectory, FFileNameMask);
+  try
+
+    for i := 0 to files.Count-1 do begin
+      relPath := LazFileUtils.CreateRelativePath(files.Strings[i], FBaseDirectory);
+      FCache.AddObject(relPath, Prepare(files.Strings[i], true) );
+    end;
+
+  finally
+    //files.SaveToFile('full-path-list.txt');
+    //FCache.SaveToFile('cache-list.txt');
+    files.Free;
+  end;
 end;
 
-procedure TSTESharedTemplate.Release;
+function TSTECache.Prepare(const AFullFileName : string; DoCheckFileExists : boolean) : TSTEParsedTemplateData;
+var
+  content : string;
 begin
-  dec(FReadersCount);
+  if DoCheckFileExists and ( not FileExistsUTF8(AFullFileName) ) then
+    content := format('*** template not found: %s ***', [AFullFileName])
+  else
+    content := ReadFileToString(AFullFileName);
+
+  Result := FTemplateClass.Create;
+  try
+    FParser.PrepareTemplate(content, Result );
+  except
+    FreeAndNil(Result);
+    raise;
+  end;
+end;
+
+procedure TSTECache.AfterConstruction;
+begin
+  if FFileNameMask <> '' then
+    Preload;
+end;
+
+constructor TSTECache.Create(const ABaseDir, AFileNameMask : string);
+begin
+  FBaseDirectory := ABaseDir;
+  if not FilenameIsAbsolute(FBaseDirectory) then
+    FBaseDirectory := ExpandFileNameUTF8
+    (
+      FBaseDirectory,
+      IncludeTrailingPathDelimiter(ExtractFileDir(ParamStr(0)))
+    );
+  FBaseDirectory := IncludeTrailingPathDelimiter( FBaseDirectory );
+
+  FFileNameMask := AFileNameMask;
+  FTemplateClass := TSTEParsedTemplateData;
+  FParser := TSTEParser.Create;
+  FCache := TStringList.Create;
+  FCache.OwnsObjects := true;
+end;
+
+destructor TSTECache.Destroy;
+begin
+  FCache.Free;
+  FParser.Free;
+  inherited Destroy;
+end;
+
+function TSTECache.Get(const AFileName : string) : TSTEParsedTemplateData;
+var
+  idx : integer;
+begin
+  Result := nil;
+  idx := FCache.IndexOf(AFileName);
+  if idx <> -1 then
+    Result := TSTEParsedTemplateData(FCache.Objects[idx]);
+end;
+
+procedure TSTECache.Release(ATemplate : TSTEParsedTemplateData);
+begin
+  // do nothing
 end;
 
 constructor TSTESharedTemplate.Create;
 begin
   inherited Create;
   FReadersCount := 0;
+  FIsGarbage := false;
 end;
 
-function TSTECache.InternalGet(const AnItemName : string) : TSTESharedTemplate;
+function TSTERefreshableCache.Prepare(const AFullFileName : string; DoCheckFileExists : boolean) : TSTEParsedTemplateData;
+begin
+  Result := inherited Prepare(AFullFileName, DoCheckFileExists);
+  TSTESharedTemplate(Result).FLastChangeDate := FileDateToDateTime( FileAge(AFullFileName) );
+end;
+
+procedure TSTERefreshableCache.ClearGarbage;
 var
-  maxIdx, i: Integer;
+  i : Integer;
+begin
+  for i := 0 to FGarbageItems.Count-1 do
+    TSTESharedTemplate(FCache.Objects[i]).Free;
+  FGarbageItems.Clear;
+end;
+
+function TSTERefreshableCache.Get(const AFileName : string) : TSTEParsedTemplateData;
+var
+  idx : integer;
+  tpl : TSTESharedTemplate;
+  ChangedAt : TDateTime;
 begin
   Result := nil;
+  FLock.Enter;
+  try
+    // find item
+    idx := FCache.IndexOf(AFileName);
 
-  // find item
-  maxIdx := Length(FCache)-1;
-  for i := 0 to maxIdx do begin
-    if SameText( FCache[i].Name, AnItemName ) then begin // ------ hit
-      Result := FCache[i].Template;
-
-      if Refreshable then begin
-
-
-
-
-
+    if idx = -1 then begin // -------------- miss
+      if LoadOnDemand then begin
+        tpl := TSTESharedTemplate( Prepare( FBaseDirectory + AFileName) );
+        FCache.AddObject(AFileName, tpl);
       end;
-      Result.Aquire;
-      Exit;
+
+    end else begin // -------------- hit
+      tpl := TSTESharedTemplate( FCache.Objects[idx] );
+      ChangedAt := FileDateToDateTime(FileAge(FBaseDirectory + AFileName));
+      if ( ChangedAt > tpl.FLastChangeDate) then begin // need to refresh ???
+        // move old version to garabge
+        TSTESharedTemplate(FCache.Objects[idx]).FIsGarbage := true;
+        FGarbageItems.Add( FCache.Objects[idx] );
+
+        // create new
+        tpl := TSTESharedTemplate( Prepare( FBaseDirectory + AFileName) );
+        FCache.Objects[idx] := tpl;
+      end;
     end;
-  end;
 
-  // cache miss
+    if tpl <> nil then
+      inc(tpl.FReadersCount);
 
-
-end;
-
-function TSTECache.Prepare(const AFileName : string) : TSTEParsedTemplateData;
-var
-  content : string;
-begin
-  if FileExistsUTF8(AFileName) then
-    content := ReadFileToString(AFileName)
-  else
-    content := format('*** template not found: %s ***', [AFileName]);
-  Result := FParser.Prepare( content );
-end;
-
-procedure TSTECache.Clear;
-var
-  item : TSTECachedItem;
-begin
-  {$ifndef STE_CACHE_NO_THREADS}
-  FLock.BeginWrite;
-  try
-  {$endif}
-
-    for item in FCache do
-      item.Template.Free;
-    SetLength(FCache, 0);
-
-  {$ifndef STE_CACHE_NO_THREADS}
+    Result := tpl;
   finally
-    FLock.EndWrite;
+    FLock.Leave;
   end;
-  {$endif}
 end;
 
-function TSTECache.Get(const AnItemName : string) : TSTEParsedTemplateData;
+procedure TSTERefreshableCache.Release(ATemplate : TSTEParsedTemplateData);
+var
+  idx : Integer;
+  tpl : TSTESharedTemplate;
 begin
-  Result := nil;
-
-  {$ifndef STE_CACHE_NO_THREADS}
-  FLock.BeginRead;
+  tpl := TSTESharedTemplate(ATemplate);
+  FLock.Enter;
   try
-  {$endif}
-    Result := InternalGet(AnItemName);
-  {$ifndef STE_CACHE_NO_THREADS}
+    dec(tpl.FReadersCount);
+    // delete if grabage
+    if (tpl.FReadersCount = 0) and tpl.FIsGarbage then begin
+      idx := FGarbageItems.IndexOf(tpl);
+      if idx <> -1 then
+        FGarbageItems.Delete(idx);
+      tpl.Free;
+    end;
   finally
-    FLock.EndRead;
+    FLock.Leave;
   end;
-  {$endif}
 end;
 
-constructor TSTECache.Create;
+constructor TSTERefreshableCache.Create(const ABaseDir, AFileNameMask : string);
 begin
-  Refreshable := false;
-  FParser := TSTEParser.Create;
-  {$ifndef STE_CACHE_NO_THREADS}
-  FLock := TMultiReadExclusiveWriteSynchronizer.Create;
-  {$endif}
+  inherited Create(ABaseDir, AFileNameMask);
+  FTemplateClass := TSTESharedTemplate;
+  LoadOnDemand := true;
+  FLock := TCriticalSection.Create;
+  FGarbageItems := TFPList.Create;
 end;
 
-destructor TSTECache.Destroy;
+destructor TSTERefreshableCache.Destroy;
 begin
-  Clear;
-  {$ifndef STE_CACHE_NO_THREADS}
-  FParser.Free;
+  ClearGarbage;
+  FGarbageItems.Free;
   FLock.Free;
-  {$endif}
   inherited Destroy;
 end;
 

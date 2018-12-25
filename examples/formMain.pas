@@ -5,28 +5,33 @@ unit formMain;
 interface
 
 uses
-  Classes, SysUtils, BufDataset, db, FileUtil, IpHtml, Ipfilebroker, Forms, Controls, Graphics, Dialogs, StdCtrls, LCLIntf, ExtCtrls, Buttons, DbCtrls;
+  Classes, SysUtils, BufDataset, db, IpHtml, Forms, Controls, Graphics, Dialogs,
+  StdCtrls, LCLIntf, ExtCtrls, Buttons, DbCtrls, ComCtrls, FileUtil;
 
 type
   TfrmMain = class(TForm)
     btnGenerate : TBitBtn;
+    cbUseCache : TCheckBox;
     DBCheckBox1 : TDBCheckBox;
     DBEdit1 : TDBEdit;
     DBEdit2 : TDBEdit;
-    dsrcHead : TDataSource;
     dsData : TBufDataset;
     dsHead : TBufDataset;
+    dsrcHead : TDataSource;
     GroupBox1 : TGroupBox;
     HtmlPanel : TIpHtmlPanel;
     Label1 : TLabel;
     Label2 : TLabel;
     Panel1 : TPanel;
+    Panel2 : TPanel;
+    Splitter1 : TSplitter;
     procedure btnGenerateClick(Sender : TObject);
     procedure FormCreate(Sender : TObject);
   private
 
-    function TagCallback(const tagParam: string): string;
     procedure SetupDatasets;
+
+    function TagCallback(const tagParam: string): string;
     procedure DisplayHTML(AStream : TStream);
 
   public
@@ -38,61 +43,67 @@ var
 
 implementation
 
-uses math, steProcessor;
+uses math, steProcessor, steCache;
 
 {$R *.lfm}
 
 const
-  TemplateFile = './templates/template.thtml';
+  TemplateName = 'template.thtml';
+
+var
+  Cache : TSTERefreshableCache;
+  FProcessor : TSTEProcessor;
+
 
 procedure TfrmMain.btnGenerateClick(Sender : TObject);
 var
   OutStream : TMemoryStream;
-  AProcessor : TSTEProcessor;
+  AFile : string;
 begin
   dsHead.CheckBrowseMode;
-
   OutStream := TMemoryStream.Create;
   try
 
-    AProcessor := TSTEProcessor.Create;
-    try
+    // set variables
+    FProcessor.SetValue('gentime', FormatDateTime('dddddd tt',Now));
+    FProcessor.SetValue('if_condition', (Random(2) >= 1) );
+    FProcessor.AddTagCallback('callback', @TagCallback);
 
-      // set variables
-      AProcessor.SetValue('gentime', FormatDateTime('dddddd tt',Now));
-      AProcessor.SetValue('if_condition', (Random(2) >= 1) );
-      AProcessor.AddTagCallback('callback', @TagCallback);
+    FProcessor.AddDataset('head', dsHead);
+    dsData.First;
+    FProcessor.AddDataset('data', dsData);
 
-      AProcessor.AddDataset('head', dsHead);
-      dsData.First;
-      AProcessor.AddDataset('data', dsData);
+    FProcessor.SetOutput(OutStream);
 
-      AProcessor.SetOutput(OutStream);
-      if not FileExists(TemplateFile) then
-        raise Exception.CreateFmt('Template file %s does not exist', [TemplateFile]);
-      AProcessor.Generate(ReadFileToString(TemplateFile));
+    if not cbUseCache.Checked then begin
+      AFile := Cache.BaseDirectory + TemplateName;
+      if not FileExists(AFile) then
+        raise Exception.CreateFmt('Template file %s does not exist', [AFile]);
+      FProcessor.Generate(ReadFileToString(AFile));
 
-    finally
-      AProcessor.Free;
+    end else begin
+      FProcessor.Template := Cache.Get(TemplateName);
+      try
+        FProcessor.Generate;
+      finally
+        Cache.Release(FProcessor.Template);
+        FProcessor.Template := nil;
+      end;
     end;
 
-    OutStream.SaveToFile('result.html');
+    //OutStream.SaveToFile('result.html');
     DisplayHTML(OutStream);
   finally
     OutStream.Free;
   end;
-
 end;
+
 
 procedure TfrmMain.FormCreate(Sender : TObject);
 begin
   SetupDatasets;
 end;
 
-function TfrmMain.TagCallback(const tagParam : string) : string;
-begin
-  Result := 'This function will be called only for this tag, params: "' + tagParam + '"';
-end;
 
 procedure TfrmMain.SetupDatasets;
 var
@@ -108,7 +119,11 @@ begin
     for i := 0 to 10 do
       AppendRecord( [i, 'String ' + IntToStr(i), Random] );
   end;
+end;
 
+function TfrmMain.TagCallback(const tagParam : string) : string;
+begin
+  Result := 'This function will be called only for this tag, parameters: "' + tagParam + '"';
 end;
 
 procedure TfrmMain.DisplayHTML(AStream : TStream);
@@ -116,6 +131,15 @@ begin
   AStream.Position := 0; //rewind required for HtmlPanel
   HtmlPanel.SetHtmlFromStream(AStream);
 end;
+
+
+initialization
+  FProcessor := TSTEProcessor.Create;
+  Cache := TSTERefreshableCache.Create('./templates', '*.thtml');
+
+finalization;
+  FProcessor.Free;
+  Cache.Free;
 
 
 end.

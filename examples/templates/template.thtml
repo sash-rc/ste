@@ -1,12 +1,12 @@
 <html>
 
-<h1 style="color:orange">Simple Templating Engine demo</h1>
+<h1 style="color:darkred">Simple Templating Engine demo</h1>
 
 <h3>Simple variable</h3>
 generated @ <?gentime?>
 
 <h3>Callback for tag "callback"</h3>
-<?callback params can be used!?>
+<?callback ===parameters can be used!===?>
 
 <h3>IF {ELSE} block</h3>
 
@@ -24,11 +24,11 @@ Id: <? ds:head int_field ?> -- Title: <? ds:head str_field ?> -- Boolean: <? ds:
 
 <h3>FOR Dataset iteration</h3>
 
-<table style="background:lightgrey">
+<table style="background:lightgrey; width:100%" width="100%" border="1" frame="vsides" > <!-- deprecated attributes used for TIpHtmlPanel -->
   <thead>
-    <th>ID</th>
-    <th>Name</th>
-    <th>Float value</th>
+    <th bgcolor="pink">ID</th>
+    <th bgcolor="pink">Name</th>
+    <th bgcolor="pink">Float value</th>
   </thead>
   
   <?for ds:data ?>
@@ -39,6 +39,8 @@ Id: <? ds:head int_field ?> -- Title: <? ds:head str_field ?> -- Boolean: <? ds:
     </tr>
   <?endfor?>  
 </table>
+
+<hr>
 
 
 
