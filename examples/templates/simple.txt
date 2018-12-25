@@ -1,0 +1,2 @@
+Plain text
+<?var1?>

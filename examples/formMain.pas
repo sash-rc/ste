@@ -51,7 +51,7 @@ const
   TemplateName = 'template.thtml';
 
 var
-  Cache : TSTERefreshableCache;
+  Cache : TSTECache;
   FProcessor : TSTEProcessor;
 
 
@@ -67,7 +67,8 @@ begin
     // set variables
     FProcessor.SetValue('gentime', FormatDateTime('dddddd tt',Now));
     FProcessor.SetValue('if_condition', (Random(2) >= 1) );
-    FProcessor.AddTagCallback('callback', @TagCallback);
+
+    FProcessor.AddTagCallback('mytag', @TagCallback);
 
     FProcessor.AddDataset('head', dsHead);
     dsData.First;
@@ -136,6 +137,7 @@ end;
 initialization
   FProcessor := TSTEProcessor.Create;
   Cache := TSTERefreshableCache.Create('./templates', '*.thtml');
+  //Cache := TSTECache.Create('./templates', '*.thtml');
 
 finalization;
   FProcessor.Free;

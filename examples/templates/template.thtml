@@ -1,12 +1,16 @@
 <html>
 
-<h1 style="color:darkred">Simple Templating Engine demo</h1>
+<h1 style="color:darkred">Simple Templating Engine demo --- </h1>
+
 
 <h3>Simple variable</h3>
 generated @ <?gentime?>
 
-<h3>Callback for tag "callback"</h3>
-<?callback ===parameters can be used!===?>
+<h3>Callback for tag "mytag"</h3>
+<?mytag ===parameters can be used!===?>
+
+<h3>Wrong/unknown tag</h3>
+<? WhoYouAre ?>
 
 <h3>IF {ELSE} block</h3>
 
@@ -19,7 +23,7 @@ Condition (random) is
   <?endif?>
 </strong>
 
-<h3>Dataset row</h3>
+<h3>Dataset fields as variables</h3>
 Id: <? ds:head int_field ?> -- Title: <? ds:head str_field ?> -- Boolean: <? ds:head bool_field ?>
 
 <h3>FOR Dataset iteration</h3>

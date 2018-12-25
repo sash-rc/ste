@@ -174,15 +174,6 @@ begin
   TSTESharedTemplate(Result).FLastChangeDate := FileDateToDateTime( FileAge(AFullFileName) );
 end;
 
-procedure TSTERefreshableCache.ClearGarbage;
-var
-  i : Integer;
-begin
-  for i := 0 to FGarbageItems.Count-1 do
-    TSTESharedTemplate(FCache.Objects[i]).Free;
-  FGarbageItems.Clear;
-end;
-
 function TSTERefreshableCache.Get(const AFileName : string) : TSTEParsedTemplateData;
 var
   idx : integer;
@@ -206,10 +197,11 @@ begin
       ChangedAt := FileDateToDateTime(FileAge(FBaseDirectory + AFileName));
       if ( ChangedAt > tpl.FLastChangeDate) then begin // need to refresh ???
         // move old version to garabge
-        TSTESharedTemplate(FCache.Objects[idx]).FIsGarbage := true;
-        FGarbageItems.Add( FCache.Objects[idx] );
+        tpl.FIsGarbage := true;
+        FGarbageItems.Add(tpl);
 
         // create new
+        tpl := nil;
         tpl := TSTESharedTemplate( Prepare( FBaseDirectory + AFileName) );
         FCache.Objects[idx] := tpl;
       end;
@@ -224,20 +216,30 @@ begin
   end;
 end;
 
+procedure TSTERefreshableCache.ClearGarbage;
+var
+  i : Integer;
+begin
+  FLock.Enter;
+  try
+    for i := 0 to FGarbageItems.Count-1 do
+      TSTESharedTemplate(FCache.Objects[i]).Free;
+    FGarbageItems.Clear;
+  finally
+    FLock.Leave;
+  end;
+end;
+
 procedure TSTERefreshableCache.Release(ATemplate : TSTEParsedTemplateData);
 var
-  idx : Integer;
   tpl : TSTESharedTemplate;
 begin
   tpl := TSTESharedTemplate(ATemplate);
   FLock.Enter;
   try
     dec(tpl.FReadersCount);
-    // delete if grabage
-    if (tpl.FReadersCount = 0) and tpl.FIsGarbage then begin
-      idx := FGarbageItems.IndexOf(tpl);
-      if idx <> -1 then
-        FGarbageItems.Delete(idx);
+    if (tpl.FReadersCount < 1) and tpl.FIsGarbage then begin
+      FGarbageItems.Remove(tpl);
       tpl.Free;
     end;
   finally
