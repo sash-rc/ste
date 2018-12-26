@@ -36,6 +36,7 @@ type
   protected
     function NewToken(AStartPos : integer; AKind : TSTEParserTokenKind = tkPlainText) : PSTEParserToken;
   public
+    ChangeDateTime : TDateTime; //used mostly for caching
     Source : string;
     Tokens : TList;
 
@@ -43,9 +44,6 @@ type
     constructor Create; virtual;
     destructor Destroy; override;
   end;
-
-type
-  TSTETemplateClass = class of TSTEParsedTemplateData;
 
 type
   TSTEParser = class
@@ -78,8 +76,8 @@ type
 
     class procedure SetDefaultTokenEnclosing(const AOpen, AClose : string);
 
-    function Prepare(const ASource : string) : TSTEParsedTemplateData; // prepare external instance
-    procedure PrepareTemplate(const ASource : string; var ATemplate : TSTEParsedTemplateData);
+    function Prepare(const ASource : string) : TSTEParsedTemplateData;
+    procedure PrepareTemplate(const ASource : string; var ATemplate : TSTEParsedTemplateData); // prepare external instance
 
     constructor Create;
     destructor Destroy; override;

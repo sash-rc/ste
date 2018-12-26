@@ -76,20 +76,15 @@ begin
 
     FProcessor.SetOutput(OutStream);
 
-    if not cbUseCache.Checked then begin
+    if not cbUseCache.Checked then begin // load from file
       AFile := Cache.BaseDirectory + TemplateName;
       if not FileExists(AFile) then
         raise Exception.CreateFmt('Template file %s does not exist', [AFile]);
       FProcessor.Generate(ReadFileToString(AFile));
 
-    end else begin
+    end else begin // load from cache
       FProcessor.Template := Cache.Get(TemplateName);
-      try
-        FProcessor.Generate;
-      finally
-        Cache.Release(FProcessor.Template);
-        FProcessor.Template := nil;
-      end;
+      FProcessor.Generate;
     end;
 
     //OutStream.SaveToFile('result.html');
