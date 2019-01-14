@@ -73,7 +73,6 @@ type
     property TagOpenToken : string read FTagOpenToken write SetTagOpenToken;
     property TagCloseToken : string read FTagCloseToken write SetTagCloseToken;
 
-
     class procedure SetDefaultTokenEnclosing(const AOpen, AClose : string);
 
     function Prepare(const ASource : string) : TSTEParsedTemplateData;

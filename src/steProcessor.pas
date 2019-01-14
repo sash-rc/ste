@@ -6,6 +6,14 @@ unit steProcessor;
 
 {$mode objfpc}{$H+}
 
+// ------------------------- //
+//                           //
+//    ┏━┓╺┳╸┏━╸ Simple       //
+//    ┗━┓ ┃ ┣╸  Templating   //
+//    ┗━┛ ╹ ┗━╸ Engine       //
+//                           //
+// ------------------------- //
+
 // generate output with previously prepared template
 
 interface
