@@ -1,5 +1,14 @@
 unit steCache;
 
+(*
+ +--------------------------+
+|  ┏━┓╺┳╸┏━╸ Simple          |
+|  ┗━┓ ┃ ┣╸  Templating      |
+|    ┃ ┃ ┃   Engine          |
+|  ┗━┛ ╹ ┗━╸ for Free Pascal |
+ + -------------------------+
+*)
+
 {$mode objfpc}{$H+}
 
 interface

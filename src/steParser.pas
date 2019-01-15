@@ -1,8 +1,13 @@
 unit steParser;
 
-//
-// Simple Templating Engine for FreePascal
-//
+(*
+ +--------------------------+
+|  ┏━┓╺┳╸┏━╸ Simple          |
+|  ┗━┓ ┃ ┣╸  Templating      |
+|    ┃ ┃ ┃   Engine          |
+|  ┗━┛ ╹ ┗━╸ for Free Pascal |
+ + -------------------------+
+*)
 
 {$mode objfpc}{$H+}
 

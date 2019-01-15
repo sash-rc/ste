@@ -1,18 +1,16 @@
 unit steProcessor;
 
-//
-// Simple Templating Engine for FreePascal
-//
+(*
+ +--------------------------+
+|  ┏━┓╺┳╸┏━╸ Simple          |
+|  ┗━┓ ┃ ┣╸  Templating      |
+|    ┃ ┃ ┃   Engine          |
+|  ┗━┛ ╹ ┗━╸ for Free Pascal |
+ + -------------------------+
+*)
 
 {$mode objfpc}{$H+}
 
-// ------------------------- //
-//                           //
-//    ┏━┓╺┳╸┏━╸ Simple       //
-//    ┗━┓ ┃ ┣╸  Templating   //
-//    ┗━┛ ╹ ┗━╸ Engine       //
-//                           //
-// ------------------------- //
 
 // generate output with previously prepared template
 
