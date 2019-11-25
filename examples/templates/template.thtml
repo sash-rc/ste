@@ -1,6 +1,7 @@
 <html>
 
 <h1 style="color:darkred">Simple Templating Engine demo</h1>
+<small style="color:navy;">Not actually a full-blown and valid html, but enough to be used with TIpHtmlPanel</small>
 
 
 <h3>Simple variable</h3>

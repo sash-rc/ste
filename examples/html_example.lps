@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CONFIG>
   <ProjectSession>
-    <Version Value="10"/>
+    <Version Value="11"/>
     <BuildModes Active="Default"/>
     <Units Count="41">
       <Unit0>
@@ -17,10 +17,11 @@
         <ComponentName Value="frmMain"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <TopLine Value="106"/>
-        <CursorPos X="9"/>
+        <IsVisibleTab Value="True"/>
+        <CursorPos X="29" Y="22"/>
         <UsageCount Value="123"/>
         <Loaded Value="True"/>
+        <LoadedDesigner Value="True"/>
       </Unit1>
       <Unit2>
         <Filename Value="../src/steParser.pas"/>
@@ -40,9 +41,9 @@
       <Unit4>
         <Filename Value="../src/steCache.pas"/>
         <IsPartOfProject Value="True"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
-        <CursorPos X="12" Y="15"/>
+        <TopLine Value="26"/>
+        <CursorPos X="73" Y="41"/>
         <UsageCount Value="84"/>
         <Loaded Value="True"/>
       </Unit4>
@@ -319,9 +320,13 @@
       </Position4>
       <Position5>
         <Filename Value="formMain.pas"/>
-        <Caret Column="9" TopLine="106"/>
+        <Caret Line="15" Column="71" TopLine="107"/>
       </Position5>
     </JumpHistory>
+    <RunParams>
+      <FormatVersion Value="2"/>
+      <Modes Count="0" ActiveMode="default"/>
+    </RunParams>
   </ProjectSession>
   <Debugging>
     <Watches Count="1">

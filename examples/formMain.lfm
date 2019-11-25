@@ -1,19 +1,19 @@
 object frmMain: TfrmMain
   Left = 458
-  Height = 827
+  Height = 692
   Top = 132
-  Width = 1244
+  Width = 1241
   Caption = 'Simple Templating Engine examples'
-  ClientHeight = 827
-  ClientWidth = 1244
-  DesignTimePPI = 91
+  ClientHeight = 692
+  ClientWidth = 1241
+  DesignTimePPI = 92
   OnCreate = FormCreate
-  LCLVersion = '1.8.4.0'
+  LCLVersion = '2.0.6.0'
   object HtmlPanel: TIpHtmlPanel
-    Left = 552
-    Height = 827
+    Left = 558
+    Height = 692
     Top = 0
-    Width = 692
+    Width = 683
     Align = alClient
     FixedTypeface = 'Courier New'
     DefaultTypeFace = 'default'
@@ -31,27 +31,29 @@ object frmMain: TfrmMain
   end
   object Panel1: TPanel
     Left = 0
-    Height = 827
+    Height = 692
     Top = 0
-    Width = 544
+    Width = 550
     Align = alLeft
-    ClientHeight = 827
-    ClientWidth = 544
+    ClientHeight = 692
+    ClientWidth = 550
+    ParentFont = False
     TabOrder = 1
     object Panel2: TPanel
       Left = 1
-      Height = 66
-      Top = 760
-      Width = 542
+      Height = 67
+      Top = 624
+      Width = 548
       Align = alBottom
-      ClientHeight = 66
-      ClientWidth = 542
+      ClientHeight = 67
+      ClientWidth = 548
+      ParentFont = False
       TabOrder = 0
       object btnGenerate: TBitBtn
         Left = 24
         Height = 33
         Top = 16
-        Width = 136
+        Width = 137
         Caption = 'Generate'
         Glyph.Data = {
           36040000424D3604000000000000360000002800000010000000100000000100
@@ -90,17 +92,19 @@ object frmMain: TfrmMain
           23E88A4C24A485481E438A4C2100AA550000874B2166874A20FF
         }
         OnClick = btnGenerateClick
+        ParentFont = False
         TabOrder = 0
       end
     end
     object GroupBox1: TGroupBox
       Left = 24
-      Height = 160
+      Height = 162
       Top = 8
-      Width = 352
+      Width = 356
       Caption = 'Head Dataset'
-      ClientHeight = 137
-      ClientWidth = 350
+      ClientHeight = 138
+      ClientWidth = 352
+      ParentFont = False
       TabOrder = 1
       object Label1: TLabel
         Left = 16
@@ -109,46 +113,51 @@ object frmMain: TfrmMain
         Width = 18
         Caption = 'int'
         ParentColor = False
+        ParentFont = False
       end
       object DBEdit1: TDBEdit
-        Left = 96
-        Height = 28
+        Left = 97
+        Height = 32
         Top = 2
-        Width = 161
+        Width = 163
         DataField = 'int_field'
         DataSource = dsrcHead
         CharCase = ecNormal
         MaxLength = 0
+        ParentFont = False
         TabOrder = 0
       end
       object Label2: TLabel
         Left = 16
         Height = 22
-        Top = 54
+        Top = 55
         Width = 40
         Caption = 'string'
         ParentColor = False
+        ParentFont = False
       end
       object DBEdit2: TDBEdit
-        Left = 96
-        Height = 28
-        Top = 48
-        Width = 162
+        Left = 97
+        Height = 32
+        Top = 49
+        Width = 164
         DataField = 'str_field'
         DataSource = dsrcHead
         CharCase = ecNormal
         MaxLength = 0
+        ParentFont = False
         TabOrder = 1
       end
       object DBCheckBox1: TDBCheckBox
-        Left = 96
+        Left = 97
         Height = 22
-        Top = 96
-        Width = 85
+        Top = 97
+        Width = 86
         AllowGrayed = True
         Caption = 'bool'
         DataField = 'bool_field'
         DataSource = dsrcHead
+        ParentFont = False
         TabOrder = 2
         ValueChecked = 'True'
         ValueUnchecked = 'False'
@@ -156,16 +165,17 @@ object frmMain: TfrmMain
     end
     object cbUseCache: TCheckBox
       Left = 33
-      Height = 24
-      Top = 196
-      Width = 94
+      Height = 26
+      Top = 198
+      Width = 95
       Caption = 'Use Cache'
+      ParentFont = False
       TabOrder = 2
     end
   end
   object Splitter1: TSplitter
-    Left = 544
-    Height = 827
+    Left = 550
+    Height = 692
     Top = 0
     Width = 8
   end
@@ -184,8 +194,8 @@ object frmMain: TfrmMain
         Name = 'bool_field'
         DataType = ftBoolean
       end>
-    left = 104
-    top = 232
+    left = 105
+    top = 235
   end
   object dsData: TBufDataset
     FieldDefs = <    
@@ -202,12 +212,12 @@ object frmMain: TfrmMain
         Name = 'float_field'
         DataType = ftFloat
       end>
-    left = 160
-    top = 232
+    left = 162
+    top = 235
   end
   object dsrcHead: TDataSource
     DataSet = dsHead
     left = 40
-    top = 232
+    top = 235
   end
 end
