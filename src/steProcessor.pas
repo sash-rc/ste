@@ -34,7 +34,7 @@ type
     FOutput : TStream;
     FCurrentToken : integer;
     FGenerating : boolean; // for handle recursion
-    FUseDSNamespace : boolean; // dataset-namespace prefixed name
+    FUseDataSetPrefix : boolean; // ise prefixes for dataset names
     FDSNamespaceLength : integer;
     procedure CheckOutput;
     procedure DisposeValues;
@@ -67,7 +67,7 @@ type
 
     function CheckTagCallbacks(const tagName, tagParam: string; var Value : string) : boolean;
   public
-    DSNamespace : string; // namespace (prefix) for datasets
+    DataSetPrefix : string; // prefix for datasets (for more readable distinction) // set to empty to disable feature
     Template : TSTEParsedTemplateData;
 
     // callback should return false, if tag not handled
@@ -341,7 +341,7 @@ end;
 
 function TSTEProcessor.CheckDSNamespaceDataset(const PrefixedDsName: string; out PureDsName: string): boolean;
 begin
-  Result := ( FUseDSNamespace and (Pos(DSNamespace, PrefixedDsName) = 1) ); // try if this is a dataset field
+  Result := ( FUseDataSetPrefix and (Pos(DataSetPrefix, PrefixedDsName) = 1) ); // try if this is a dataset field
   if Result then
     PureDsName := Copy(PrefixedDsName, FDSNamespaceLength + 1, Length(PrefixedDsName)-FDSNamespaceLength);
 end;
@@ -490,8 +490,8 @@ begin
 
     CheckOutput;
 
-    FUseDSNamespace := (DSNamespace <> '');
-    FDSNamespaceLength := Length(DSNamespace);
+    FUseDataSetPrefix := (DataSetPrefix <> '');
+    FDSNamespaceLength := Length(DataSetPrefix);
 
     FCurrentToken := 0;
     ProcessTokens(Template.Tokens.Count-1);
@@ -560,7 +560,7 @@ begin
 
   UnkownTagFeedback := true;
   UnkownTagFeedbackFormat := '[{%s}]';
-  DSNamespace := 'ds:';
+  DataSetPrefix := 'ds:';
 end;
 
 destructor TSTEProcessor.Destroy;

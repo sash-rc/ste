@@ -11,17 +11,17 @@ generated @ <?gentime?>
 <?mytag ===parameters can be used!===?>
 
 <h3>Wrong/unknown tag</h3>
-<? WhoYouAre ?>
+<? UnknownTag ?>
 
 <h3>IF {ELSE} block</h3>
 
 Condition (random) is 
 <strong>
-  <?if if_condition ?>
+  <? if if_condition ?>
     <span style="color:darkgreen">True / Assigned</span>
-  <?else?>
+  <? else ?>
     <span style="color:red">False / Unassigned</span>
-  <?endif?>
+  <? endif ?>
 </strong>
 
 <h3>Dataset fields as variables</h3>
@@ -36,13 +36,13 @@ Id: <? ds:head int_field ?> -- Title: <? ds:head str_field ?> -- Boolean: <? ds:
     <th bgcolor="pink">Float value</th>
   </thead>
   
-  <?for ds:data ?>
+  <? for ds:data ?>
     <tr>
       <td><? ds:data id ?></td>
       <td><? ds:data name ?></td>
       <td style="text-align:right; color:red"><? ds:data float_field ?></td>
     </tr>
-  <?endfor?>  
+  <? endfor ?>  
 </table>
 
 <hr>

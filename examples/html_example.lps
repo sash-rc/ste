@@ -9,7 +9,7 @@
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="-1"/>
         <CursorPos X="7" Y="5"/>
-        <UsageCount Value="123"/>
+        <UsageCount Value="125"/>
       </Unit0>
       <Unit1>
         <Filename Value="formMain.pas"/>
@@ -17,34 +17,35 @@
         <ComponentName Value="frmMain"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <IsVisibleTab Value="True"/>
-        <CursorPos X="29" Y="22"/>
-        <UsageCount Value="123"/>
+        <TopLine Value="37"/>
+        <CursorPos X="3" Y="55"/>
+        <UsageCount Value="125"/>
         <Loaded Value="True"/>
-        <LoadedDesigner Value="True"/>
       </Unit1>
       <Unit2>
         <Filename Value="../src/steParser.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="2"/>
-        <TopLine Value="18"/>
+        <EditorIndex Value="3"/>
         <CursorPos X="40" Y="37"/>
-        <UsageCount Value="123"/>
+        <UsageCount Value="125"/>
         <Loaded Value="True"/>
       </Unit2>
       <Unit3>
         <Filename Value="../src/steProcessor.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="-1"/>
-        <UsageCount Value="123"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="1"/>
+        <TopLine Value="52"/>
+        <CursorPos X="53" Y="70"/>
+        <UsageCount Value="125"/>
+        <Loaded Value="True"/>
       </Unit3>
       <Unit4>
         <Filename Value="../src/steCache.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="1"/>
-        <TopLine Value="26"/>
-        <CursorPos X="73" Y="41"/>
-        <UsageCount Value="84"/>
+        <EditorIndex Value="2"/>
+        <CursorPos X="61" Y="47"/>
+        <UsageCount Value="86"/>
         <Loaded Value="True"/>
       </Unit4>
       <Unit5>
@@ -301,7 +302,7 @@
         <UsageCount Value="9"/>
       </Unit40>
     </Units>
-    <JumpHistory Count="5" HistoryIndex="4">
+    <JumpHistory Count="9" HistoryIndex="8">
       <Position1>
         <Filename Value="../src/steParser.pas"/>
         <Caret Line="80" Column="15" TopLine="62"/>
@@ -322,6 +323,22 @@
         <Filename Value="formMain.pas"/>
         <Caret Line="15" Column="71" TopLine="107"/>
       </Position5>
+      <Position6>
+        <Filename Value="formMain.pas"/>
+        <Caret Line="133" Column="67" TopLine="61"/>
+      </Position6>
+      <Position7>
+        <Filename Value="formMain.pas"/>
+        <Caret Line="55" Column="3" TopLine="37"/>
+      </Position7>
+      <Position8>
+        <Filename Value="../src/steProcessor.pas"/>
+        <Caret Line="257" Column="47" TopLine="538"/>
+      </Position8>
+      <Position9>
+        <Filename Value="../src/steProcessor.pas"/>
+        <Caret Line="70" Column="18" TopLine="52"/>
+      </Position9>
     </JumpHistory>
     <RunParams>
       <FormatVersion Value="2"/>
