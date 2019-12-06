@@ -1,1 +1,9 @@
-.hg/
+.hgignore
+.hg
+examples/backup
+src/backup
+examples/lib
+examples/html_example.res
+examples/html_example.lps
+examples/html_example.dbg
+examples/html_example
