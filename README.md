@@ -1,7 +1,6 @@
 # Simple Templating Engine for Free Pascal
 
-
-##Features
+## Features
 
 * Pre-assigned variables
 * OnExpandTag (global) callback
