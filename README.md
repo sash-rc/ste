@@ -1,6 +1,6 @@
 # Simple Templating Engine for Free Pascal
 
-Fast engine is used to generate text, html, xml, markup or any text by using tags/variables
+Fast engine to generate text (html, xml, or any markup) with tags/variables in Object/Free Pascal (probably delphi compatible)
 
 ## Features
 
@@ -14,9 +14,12 @@ Fast engine is used to generate text, html, xml, markup or any text by using tag
 * Separated synthax parsing (prepare) and variable expansion (process) on prepared templates.
 * I/O with strings/streams
 
+
 ## Quickstart
 
-* No installation required, just add steParser and/or steProcessor to **uses** clase as needed in your unit.
+* Download / clone source code.
+* No installation required, just include path to *src* to your project (Other Unit Files in your Lazarus project).
+* Add steParser and/or steProcessor to **uses** clase as needed in your unit.
 * Here is a minimal example
 ```pascal
 uses steProcessor;
