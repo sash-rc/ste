@@ -16,24 +16,22 @@ Fast engine is used to generate text, html, xml, markup or any text by using tag
 ## Quickstart
 
 * No installation required, just add steParser and/or steProcessor to **uses** clase where needed in your unit.
- 
-		uses steProcessor;
+```pascal
+uses steProcessor;
 
-		var
-		  tplRpoc : TSTEProcessor;
-		  ResultString : string;
-		
-		// in this example parser is created internally
-		
-		tplRpoc := TSTEProcessor.Create;
-		try
-		  tplRpoc.SetValue('var', 'your'); 
-		  ResultString := tplRpocGenerateToString('This is a template text. And here is <?var?> variable');
-		finally
-		  tplRpoc.Free;
-		end;
-	
+var
+  tplRpoc : TSTEProcessor;
+  ResultString : string;
 
+// in this example parser is created internally
+tplRpoc := TSTEProcessor.Create;
+try
+  tplRpoc.SetValue('var', 'your'); 
+  ResultString := tplRpocGenerateToString('This is a template text. And here is <?var?> variable');
+finally
+  tplRpoc.Free;
+end;
+```
 ## Templates, keywords
 
 
