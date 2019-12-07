@@ -1,4 +1,4 @@
-# Simple Templating Engine for Free Pascal
+# Simple Template Engine for Free Pascal
 
 Fast engine to generate text (html, xml, or any markup) with tags/variables in Object/Free Pascal (probably delphi compatible)
 
