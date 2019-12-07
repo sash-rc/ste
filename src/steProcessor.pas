@@ -1,12 +1,12 @@
 unit steProcessor;
 
 (*
- +--------------------------+
++--------------------------+
 |  ┏━┓╺┳╸┏━╸ Simple          |
-|  ┗━┓ ┃ ┣╸  Templating      |
+|  ┗━┓ ┃ ┣╸  Template        |
 |    ┃ ┃ ┃   Engine          |
 |  ┗━┛ ╹ ┗━╸ for Free Pascal |
- + -------------------------+
++ -------------------------+
 *)
 
 {$mode objfpc}{$H+}
@@ -22,7 +22,7 @@ uses
 type
   TSTEExpandTagProc = function (const tagParam: string): string of object;
 
-  TSPTEExpandTagCallbackInfo = record
+  TSTEExpandTagCallbackInfo = record
     Tag : string;
     Proc : TSTEExpandTagProc;
   end;
@@ -45,7 +45,7 @@ type
     FDatasets : TStringList;
     FValues : TStringList; //todo: replace with TFPStringHashTable
 
-    FExpandTagCallbacks : array of TSPTEExpandTagCallbackInfo;
+    FExpandTagCallbacks : array of TSTEExpandTagCallbackInfo;
 
     procedure ProcessTextToken(token : PSTEParserToken);
     procedure ProcessTokens(iEnd : integer);

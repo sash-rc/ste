@@ -3,7 +3,7 @@ unit steParser;
 (*
  +--------------------------+
 |  ┏━┓╺┳╸┏━╸ Simple          |
-|  ┗━┓ ┃ ┣╸  Templating      |
+|  ┗━┓ ┃ ┣╸  Template        |
 |    ┃ ┃ ┃   Engine          |
 |  ┗━┛ ╹ ┗━╸ for Free Pascal |
  + -------------------------+
