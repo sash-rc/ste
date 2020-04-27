@@ -1,7 +1,8 @@
 syntax: glob
+.git
 examples/backup
 src/backup
 examples/lib
 examples/html_example.dbg
 examples/html_example
-.git
+examples/html_example.lps
