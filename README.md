@@ -32,7 +32,7 @@ var
 tplProc := TSTEProcessor.Create;
 try
   tplProc.SetValue('var', 'your'); 
-  ResultString := tplRpocGenerateToString('This is a template text. And here is <?var?> variable');
+  ResultString := tplRpoc.GenerateToString('This is a template text. And here is <?var?> variable');
 finally
   tplProc.Free;
 end;
