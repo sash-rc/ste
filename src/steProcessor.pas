@@ -21,31 +21,38 @@ uses
 
 type
   TSTEExpandTagProc = function (const tagParam: string): string of object;
+  TSTEEvaluateCondProc = function (const ACondName: string): boolean of object;
 
   TSTEExpandTagCallbackInfo = record
     Tag : string;
     Proc : TSTEExpandTagProc;
   end;
 
+  TSTEConditionCallbackInfo = record
+    ConditionName : string;
+    Proc : TSTEEvaluateCondProc;
+  end;
 
 type
   TSTEProcessor = class
   private
-    FOutput : TStream;
     FCurrentToken : integer;
     FGenerating : boolean; // for handle recursion
     FUseDataSetPrefix : boolean; // ise prefixes for dataset names
     FDSNamespaceLength : integer;
-    procedure CheckOutput;
     procedure DisposeValues;
     function GetOwnsDatasets : boolean;
     procedure SetOwnsDatasets(AValue : boolean);
 
   protected
+    FOutput : TStream; // not owned
+    FTemplate : TSTEParsedTemplateData; // template being generated, not owned
+
     FDatasets : TStringList;
     FValues : TStringList; //todo: replace with TFPStringHashTable
 
     FExpandTagCallbacks : array of TSTEExpandTagCallbackInfo;
+    FConditionalCallbacks : array of TSTEConditionCallbackInfo;
 
     procedure ProcessTextToken(token : PSTEParserToken);
     procedure ProcessTokens(iEnd : integer);
@@ -66,10 +73,10 @@ type
     function EndFor(data : pointer) : boolean; virtual; // should return true to stop loop (at EOF)
 
     function CheckTagCallbacks(const tagName, tagParam: string; var Value : string) : boolean;
+    function CheckConditionalCallbacks(const ACondName: string; var Value : boolean) : boolean;
   public
-    DataSetPrefix : string; // prefix for datasets (for more readable distinction) // set to empty to disable feature
-    Template : TSTEParsedTemplateData;
 
+    DataSetPrefix : string; // prefix for datasets (for more readable distinction) // set to empty to disable feature
     // callback should return false, if tag not handled
     OnExpandTag : function (const tagName, tagParam: string; out Value : string) : boolean of object;
 
@@ -78,28 +85,24 @@ type
     UnkownTagFeedbackFormat : string;
 
     property OwnsDatasets : boolean read GetOwnsDatasets write SetOwnsDatasets;
-
-    procedure SetOutput(AStream : TStream);
-
     procedure AddDataset(const dsName : string; ds : TDataset);
 
 
     //===== todo ? : should be values stored as variant ?
-
     procedure SetValue(const key, value : string);
     procedure SetValue(const key : string; const value : boolean);
     procedure SetValue(const key : string; const value : integer);
     procedure SetValue(const key : string; const value : single);
+    procedure SetValue(const key : string; const value : double);
 
     procedure AddTagCallback(const tagName : string; ACallbackProc : TSTEExpandTagProc);
+    procedure AddConditionCallback(const ACondName : string; ACallbackProc : TSTEEvaluateCondProc);
 
-    // generate and parse internally
-    procedure Generate(const ASource : string); // to Output Stream
-    function GenerateToString(const ASource : string) : string; // as Result string
+    property Output : TStream read FOutput write FOutput;
+    property Template : TSTEParsedTemplateData read FTemplate write FTemplate;
 
-    // from external prepared template
-    procedure Generate; // to Output Stream
-    function GenerateToString : string;
+    procedure Generate(ATemplate : TSTEParsedTemplateData; AStream : TStream);
+    procedure Generate; // to/from prevoiously assigned external OutputStream and prepared Template
 
     constructor Create;
     destructor Destroy; override;
@@ -158,20 +161,26 @@ var
   fldName, dsName : string;
   Value : boolean;
 const
-  ps : TSysCharSet = [' '];
+  psep : TSysCharSet = [' '];
 begin
   Result := false;
+
+  //try callbacks
+  if CheckConditionalCallbacks(Param, Value) then begin
+    Result := Value;
+    Exit;
+  end;
+
   i := FValues.IndexOf(Param);
   if i <> -1 then begin
     Result := ( PString(FValues.Objects[i])^ <> '' );
-  end else begin //------- try dataset field
-    fldName := ExtractWord(2, Param, ps);
-    if fldName = '' then
-      Exit;
-
-    if CheckDSNamespaceDataset(ExtractWord(1, Param, ps), dsName) then begin
-      Result := GetFieldValue(dsName, fldName, Value);
-      if Result then
+  end else begin
+    //------- try dataset
+    if CheckDSNamespaceDataset(ExtractWord(1, Param, psep), dsName) then begin
+      fldName := ExtractWord(2, Param, psep);
+      if fldName = '' then
+        Exit;
+      if GetFieldValue(dsName, fldName, Value) then
         Result := Value;
     end;
   end;
@@ -218,10 +227,19 @@ begin
     end;
 end;
 
-procedure TSTEProcessor.CheckOutput;
+function TSTEProcessor.CheckConditionalCallbacks(const ACondName : string; var Value : boolean) : boolean;
+var
+  i : integer;
 begin
-  if (FOutput = nil) then
-    raise Exception.CreateFmt('%s: unassigned Output stream', [Self.ClassName]);
+  Result := false;
+  for i := Low(FConditionalCallbacks) to High(FConditionalCallbacks) do
+    with FConditionalCallbacks[i] do begin
+      if ACondName = ConditionName then begin
+        Value := Proc(ACondName);
+        Result := true;
+        Break;
+      end;
+    end;
 end;
 
 procedure TSTEProcessor.ProcessTextToken(token: PSTEParserToken);
@@ -230,7 +248,7 @@ var
   ln : integer;
 begin
   if token^.Kind = tkPlainText then
-    FOutput.Write( Template.Source[token^.StartPos], token^.Size )
+    FOutput.Write( FTemplate.Source[token^.StartPos], token^.Size )
   else
   if token^.Kind = tkCustomTag then begin
     customTagText := ExpandTag(token^.Tag, token^.Param);
@@ -244,11 +262,11 @@ procedure TSTEProcessor.ProcessTokens(iEnd: integer);
 var
   token : PSTEParserToken;
 begin
-  if iEnd > (Template.Tokens.Count-1) then
+  if iEnd > (FTemplate.Tokens.Count-1) then
     Exit;
   while (FCurrentToken <= iEnd) do begin
-    token := PSTEParserToken(Template.Tokens.Items[FCurrentToken]);
-    //Writeln('Processing token ', FCurrentToken, '-->', STETokenTagNames[token^.Kind], ' line: ', GetSourceLineNumber(Template.Source, token^.StartPos) );
+    token := PSTEParserToken(FTemplate.Tokens.Items[FCurrentToken]);
+    //Writeln('Processing token ', FCurrentToken, '-->', STETokenTagNames[token^.Kind], ' line: ', GetSourceLineNumber(FTemplate.Source, token^.StartPos) );
 
     case token^.Kind of
     tkPlainText, tkCustomTag :  ProcessTextToken(token);
@@ -274,7 +292,7 @@ var
 begin
   linked := PSTEParserToken(token^.LinkedToken);
   hasElse := linked^.Kind = tkElse;
-  //WriteLn('IF block, hasElse -- ', hasElse, ' -- line: ', GetSourceLineNumber(Template.Source, token^.StartPos) );
+  //WriteLn('IF block, hasElse -- ', hasElse, ' -- line: ', GetSourceLineNumber(FTemplate.Source, token^.StartPos) );
   if EvaluateIf(token^.Param) then begin
     //WriteLn('IF evaluated as true');
     inc(FCurrentToken);
@@ -314,8 +332,8 @@ procedure TSTEProcessor.ProcessSetBlock(token : PSTEParserToken);
 var
   textToken: PSTEParserToken;
 begin
-  textToken := PSTEParserToken(Template.Tokens.Items[ token^.Index+1 ]);
-  SetValue(token^.Param, Copy(Template.Source, textToken^.StartPos, textToken^.Size) );
+  textToken := PSTEParserToken(FTemplate.Tokens.Items[ token^.Index+1 ]);
+  SetValue(token^.Param, Copy(FTemplate.Source, textToken^.StartPos, textToken^.Size) );
   FCurrentToken := PSTEParserToken(token^.LinkedToken)^.Index;
 end;
 
@@ -404,10 +422,6 @@ begin
 
 end;
 
-procedure TSTEProcessor.SetOutput(AStream : TStream);
-begin
-  FOutput := AStream;
-end;
 
 procedure TSTEProcessor.AddDataset(const dsName: string; ds: TDataset);
 begin
@@ -447,6 +461,11 @@ begin
   SetValue(key, floatToStr(value) );
 end;
 
+procedure TSTEProcessor.SetValue(const key : string; const value : double);
+begin
+  SetValue(key, floatToStr(value) );
+end;
+
 procedure TSTEProcessor.AddTagCallback(const tagName : string; ACallbackProc : TSTEExpandTagProc);
 var
   i : integer;
@@ -459,25 +478,16 @@ begin
   FExpandTagCallbacks[i].Proc := ACallbackProc;
 end;
 
-procedure TSTEProcessor.Generate(const ASource : string);
+procedure TSTEProcessor.AddConditionCallback(const ACondName : string; ACallbackProc : TSTEEvaluateCondProc);
 var
-  tp : TSTEParser;
-  tpl : TSTEParsedTemplateData;
+  i : integer;
 begin
-  CheckOutput;
-  tp := TSTEParser.Create;
-  try
-    tpl := tp.Prepare(ASource);
-    try
-      Template := tpl;
-      Generate;
-    finally
-      Template := nil;
-      tpl.Free;
-    end;
-  finally
-    tp.Free;
-  end;
+  if ACallbackProc = nil then
+    raise Exception.CreateFmt('%s: AddTagCallback: unassigned tag callback', [Self.ClassName]);
+  i := Length(FConditionalCallbacks);
+  SetLength(FConditionalCallbacks, i+1);
+  FConditionalCallbacks[i].ConditionName := ACondName;
+  FConditionalCallbacks[i].Proc := ACallbackProc;
 end;
 
 procedure TSTEProcessor.Generate;
@@ -485,75 +495,29 @@ begin
   if FGenerating then Exit;
   FGenerating := true;
   try
-    if Template = nil then
-      raise Exception.CreateFmt('%s: unassigned template', [Self.ClassName]);
-
-    CheckOutput;
-
     FUseDataSetPrefix := (DataSetPrefix <> '');
     FDSNamespaceLength := Length(DataSetPrefix);
-
     FCurrentToken := 0;
-    ProcessTokens(Template.Tokens.Count-1);
+    ProcessTokens(FTemplate.Tokens.Count-1);
   finally
     FGenerating := false;
   end;
 end;
 
-function TSTEProcessor.GenerateToString(const ASource : string) : string;
-var
-  ms: TMemoryStream;
-  tp : TSTEParser;
-  tpl : TSTEParsedTemplateData;
+procedure TSTEProcessor.Generate(ATemplate : TSTEParsedTemplateData; AStream : TStream);
 begin
-  tp := TSTEParser.Create;
-  try
-    tpl := tp.Prepare(ASource);
-    try
-      Template := tpl;
-
-      ms := TMemoryStream.Create;
-      try
-        SetOutput(ms);
-        Generate;
-        ms.Position := 0;
-        SetLength(Result, ms.Size);
-        ms.Read(Result[1], ms.Size);
-      finally
-        ms.Free;
-      end;
-
-    finally
-      Template := nil;
-      tpl.Free;
-    end;
-  finally
-    tp.Free;
-  end;
-end;
-
-function TSTEProcessor.GenerateToString: string;
-var
-  ms: TMemoryStream;
-begin
-  ms := TMemoryStream.Create;
-  try
-    SetOutput(ms);
-    Generate;
-    ms.Position := 0;
-    SetLength(Result, ms.Size);
-    ms.Read(Result[1], ms.Size);
-  finally
-    ms.Free;
-  end;
+  FTemplate := ATemplate;
+  FOutput := AStream;
+  Generate;
 end;
 
 constructor TSTEProcessor.Create;
 begin
   FGenerating := false;
   SetLength(FExpandTagCallbacks, 0);
+  SetLength(FConditionalCallbacks, 0);
   FOutput := nil;
-  Template := nil;
+  FTemplate := nil;
   OnExpandTag := nil;
   FDatasets := TStringList.Create;
   FValues := TStringList.Create;
@@ -566,6 +530,7 @@ end;
 destructor TSTEProcessor.Destroy;
 begin
   SetLength(FExpandTagCallbacks, 0);
+  SetLength(FConditionalCallbacks, 0);
   FDatasets.Free;
   DisposeValues;
   inherited Destroy;

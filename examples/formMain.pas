@@ -43,7 +43,7 @@ var
 
 implementation
 
-uses math, steProcessor, steCache;
+uses math, steProcessor, steProcGenHelper, steCache;
 
 {$R *.lfm}
 
@@ -57,11 +57,10 @@ var
 
 procedure TfrmMain.btnGenerateClick(Sender : TObject);
 var
-  OutStream : TMemoryStream;
   AFile : string;
 begin
   dsHead.CheckBrowseMode;
-  OutStream := TMemoryStream.Create;
+  FProcessor.Output := TMemoryStream.Create;
   try
 
     // set variables
@@ -74,13 +73,12 @@ begin
     dsData.First;
     FProcessor.AddDataset('data', dsData);
 
-    FProcessor.SetOutput(OutStream);
 
     if not cbUseCache.Checked then begin // load from file
       AFile := Cache.BaseDirectory + TemplateName;
       if not FileExists(AFile) then
         raise Exception.CreateFmt('Template file %s does not exist', [AFile]);
-      FProcessor.Generate(ReadFileToString(AFile));
+      FProcessor.GenerateFromSource( ReadFileToString(AFile) );
 
     end else begin // load from cache
       FProcessor.Template := Cache.Get(TemplateName);
@@ -88,9 +86,9 @@ begin
     end;
 
     //OutStream.SaveToFile('result.html');
-    DisplayHTML(OutStream);
+    DisplayHTML(FProcessor.Output);
   finally
-    OutStream.Free;
+    FProcessor.Output.Free;
   end;
 end;
 

@@ -9,7 +9,7 @@ uses
     { $ENDIF}
   {$ENDIF}
   Interfaces, // this includes the LCL widgetset
-  Forms, formMain, steCache;
+  Forms, formMain, steCache, steProcGenHelper;
 
 {$R *.res}
 
