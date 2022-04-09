@@ -78,7 +78,7 @@ begin
       AFile := Cache.BaseDirectory + TemplateName;
       if not FileExists(AFile) then
         raise Exception.CreateFmt('Template file %s does not exist', [AFile]);
-      FProcessor.GenerateFromSource( ReadFileToString(AFile) );
+      FProcessor.GenerateFromString( ReadFileToString(AFile) );
 
     end else begin // load from cache
       FProcessor.Template := Cache.Get(TemplateName);
